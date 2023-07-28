@@ -1,4 +1,5 @@
 import os
+import os.path as osp
 import sys
 import random
 import natsort
@@ -50,6 +51,14 @@ CLASS_MAP = {
     31: (64, 192, 0), # wall
 }
 
+# Masks aren't in RGB, pixels labelled as 0, 1, 2
+CLASS_MAP_MASTR = {
+    0: (0, 0, 0),
+    1: (1, 1, 1),
+    2: (2, 2, 2)
+}
+
+
 # all the classes that are present in the dataset
 ALL_CLASSES = [
     'animal', 'archway', 'bicyclist', 'bridge', 'building', 'car',
@@ -59,6 +68,9 @@ ALL_CLASSES = [
     'signsymbol', 'sky', 'suvpickuptruck', 'trafficcone', 'trafficlight',
     'train', 'tree', 'truckbase', 'tunnel', 'vegetationmisc', 'void', 'wall']
 
+ALL_CLASSES_MASTR = [
+    'obstacle', 'water', 'sky'
+]
 
 class Transforms:
     def __init__(self, img=None, mask=None, img_size=None):
@@ -144,13 +156,28 @@ class SSegmDataset(Dataset):
         self.num_classes = num_classes
         self.pixels_per_class = [[] for _ in range(self.num_classes)]
 
-        self.color_dict = CLASS_MAP
+        if dataset_name.lower() == "mastr1325":
+            self.color_dict = CLASS_MAP_MASTR
+        else:
+            self.color_dict = CLASS_MAP
 
         self.img_path = root_path + mode
         self.mask_path = root_path + mode + "_labels/"
 
+        print(self.img_path)
         all_imgs = os.listdir(self.img_path)
-        all_masks = [img_name[:-4] + "_L" + img_name[-4:] for img_name in all_imgs]
+        print(all_imgs)
+        if dataset_name.lower() == 'mastr1325':
+            all_masks = []
+            for img_name in all_imgs:
+                filename, _ = osp.splitext(img_name)
+                if osp.isfile(osp.join(self.mask_path, filename + ".png")):
+                    all_masks.append(filename + ".png") # Or change to m.png
+                else:
+                    all_imgs.remove(img_name)
+        else:
+            all_masks = [img_name[:-4] + img_name[-4:] for img_name in all_imgs]
+        print(all_masks)
 
         self.tot_imgs = natsort.natsorted(all_imgs)
         self.tot_masks = natsort.natsorted(all_masks)
