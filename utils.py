@@ -20,6 +20,12 @@ assert pathmagic
 
 DATASETS = ["camvid", "cityscapes", "mastr1325"]
 
+# When creating an RGB image
+PALETTE_MASTR = {
+    0: {204, 0, 0}, # obstacle
+    1: {153, 204, 255},
+    2: {204, 102, 153}
+}
 
 class ModelConfigurator:
     def __init__(self, comb=0, dataset_name=None, img_sizes=None,
@@ -652,7 +658,7 @@ def color_map(csv_file):
 
 
 def label_colors(rgb, mask, color_dict, num_classes):
-
+    
     # Set the label for each color map in order to generate the mask
     for label, color in color_dict.items():
 
