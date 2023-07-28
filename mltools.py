@@ -25,7 +25,7 @@ from modules.utils import (
 assert pathmagic
 
 
-def build_loss_fn(loss_name, pixels_per_class=None):
+def build_loss_fn(loss_name, pixels_per_class=None, dataset="camvid"):
 
     if loss_name.lower() == 'bce':
         loss_fn = nn.BCELoss()
@@ -34,7 +34,11 @@ def build_loss_fn(loss_name, pixels_per_class=None):
     elif loss_name.lower() == 'cross':
         loss_fn = nn.CrossEntropyLoss()
     elif loss_name.lower() == 'jet' and pixels_per_class is not None:
-        loss_fn = JetLoss(pixels_per_class=pixels_per_class)
+        if (dataset.lower() == "mastr1325"):
+            # Sky gets treated as background 
+            loss_fn = JetLoss(background_idx=2, n_classes=3, pixels_per_class=pixels_per_class)
+        else:
+            loss_fn = JetLoss(pixels_per_class=pixels_per_class)
     else:
         raise ValueError(f"{loss_name} doesn't exists")
 
@@ -68,8 +72,8 @@ def load_dataset(dataset_name, num_classes):
     elif dataset_name.lower() == 'mastr1325':
         #code2id, id2code, name2id, id2name = color_map(color_dict)
         color_maps = {
-            "code2id": {0: 0, 1: 1, 2: 2, 3: 3},
-            "id2code": {0: 0, 1: 1, 2: 2, 3: 3},
+            "code2id": {(0, 0, 0): 0, (1, 1, 1): 1, (2, 2, 2): 2},
+            "id2code": {0: (0, 0, 0), 1: (1, 1, 1), 2: (2, 2, 2), 3: (3, 3, 3)},
             "name2id": {"obstacle": 0, "water": 1, "sky": 2},
             "id2name": {0: "obstacle", 1: "water", 2: "sky"}
         }
@@ -101,6 +105,15 @@ def load_dataset(dataset_name, num_classes):
         # Getting color map codification
         color_dict = data_path + 'class_dict.csv'
         code2id, id2code, name2id, id2name = color_map(color_dict)
+        print("code2id")
+        print(code2id)
+        print("id2code")
+        print(id2code)
+        print("name2id")
+        print(name2id)
+        print("id2name")
+        print(id2name)
+
         color_maps = {
             "code2id": code2id,
             "id2code": id2code,
