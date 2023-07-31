@@ -24,7 +24,8 @@ DATASETS = ["camvid", "cityscapes", "mastr1325"]
 PALETTE_MASTR = {
     0: {204, 0, 0}, # obstacle
     1: {153, 204, 255},
-    2: {204, 102, 153}
+    2: {204, 102, 153},
+    3: {0, 0, 0},
 }
 
 class ModelConfigurator:
@@ -118,7 +119,7 @@ class ModelConfigurator:
         elif self.dataset_name == 'cityscapes':
             return 30
         elif self.dataset_name == 'mastr1325':
-            return 3
+            return 4
         else:
             raise ValueError(f"[ERROR] The dataset {self.dataset_name} \
                              doesn't exists")

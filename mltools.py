@@ -36,7 +36,7 @@ def build_loss_fn(loss_name, pixels_per_class=None, dataset="camvid"):
     elif loss_name.lower() == 'jet' and pixels_per_class is not None:
         if (dataset.lower() == "mastr1325"):
             # Sky gets treated as background 
-            loss_fn = JetLoss(background_idx=2, n_classes=3, pixels_per_class=pixels_per_class)
+            loss_fn = JetLoss(background_idx=3, n_classes=4, pixels_per_class=pixels_per_class)
         else:
             loss_fn = JetLoss(pixels_per_class=pixels_per_class)
     else:
@@ -72,10 +72,10 @@ def load_dataset(dataset_name, num_classes):
     elif dataset_name.lower() == 'mastr1325':
         #code2id, id2code, name2id, id2name = color_map(color_dict)
         color_maps = {
-            "code2id": {(0, 0, 0): 0, (1, 1, 1): 1, (2, 2, 2): 2},
+            "code2id": {(0, 0, 0): 0, (1, 1, 1): 1, (2, 2, 2): 2, (3, 3, 3): 3},
             "id2code": {0: (0, 0, 0), 1: (1, 1, 1), 2: (2, 2, 2), 3: (3, 3, 3)},
-            "name2id": {"obstacle": 0, "water": 1, "sky": 2},
-            "id2name": {0: "obstacle", 1: "water", 2: "sky"}
+            "name2id": {"obstacle": 0, "water": 1, "sky": 2, "ignore": 3},
+            "id2name": {0: "obstacle", 1: "water", 2: "sky", 3: "ignore"}
         }
 
         train = SSegmDataset(dataset_name=dataset_name.lower(),
@@ -511,7 +511,7 @@ def inference_evaluation(img, color_code, model, device):
     return out
 
 
-def evaluation(dataloader, model, color_code):
+def evaluation(dataloader, model, color_code, num_classes=32):
 
     # First we need to valid if is a DataLoader PyTorch Object
     if not isinstance(dataloader, torch.utils.data.DataLoader):
@@ -561,10 +561,10 @@ def evaluation(dataloader, model, color_code):
 
         # Get binary mask prediction of the model
         pred_mask = batch_binary_mask(img.cpu().numpy(),
-                                      pred.cpu().numpy(), 32)
+                                      pred.cpu().numpy(), num_classes)
 
         # Compute mIoU
-        miou = compute_mIoU(pred_mask.cuda(), gt.cuda(), 32)
+        miou = compute_mIoU(pred_mask.cuda(), gt.cuda(), num_classes)
 
         # Convert classes output to rgb output
         pred_mask = mask_to_rgb(pred_mask.numpy().squeeze(), color_code)

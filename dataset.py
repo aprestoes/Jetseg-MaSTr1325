@@ -55,7 +55,8 @@ CLASS_MAP = {
 CLASS_MAP_MASTR = {
     0: (0, 0, 0),
     1: (1, 1, 1),
-    2: (2, 2, 2)
+    2: (2, 2, 2),
+    3: (3, 3, 3)
 }
 
 
@@ -69,7 +70,7 @@ ALL_CLASSES = [
     'train', 'tree', 'truckbase', 'tunnel', 'vegetationmisc', 'void', 'wall']
 
 ALL_CLASSES_MASTR = [
-    'obstacle', 'water', 'sky'
+    'obstacle', 'water', 'sky', 'ignore'
 ]
 
 class Transforms:
@@ -221,7 +222,7 @@ class SSegmDataset(Dataset):
             return 0
         
         elif self.dataset_name == "mastr1325":
-            return 4    # The ignore pixel
+            return 3    # The ignore pixel
 
         else:
             raise ValueError(f'[ERROR] Not valid dataset name: {self.dataset_name}')
