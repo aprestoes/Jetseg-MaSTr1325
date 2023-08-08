@@ -18,7 +18,7 @@ from config import jsc
 
 assert pathmagic
 
-DATASETS = ["camvid", "cityscapes", "mastr1325"]
+DATASETS = ["camvid", "cityscapes", "mastr1325", "mastr1325_modified"]
 
 # When creating an RGB image
 PALETTE_MASTR = {
@@ -130,7 +130,7 @@ class ModelConfigurator:
             return [960, 720]
         elif self.dataset_name == 'cityscapes':
             return [2048, 1024]
-        elif self.dataset_name == 'mastr1325':
+        elif self.dataset_name == 'mastr1325' or self.dataset_name == 'mastr1325_modified':
             return [512, 384]
 
     def count_pixels_per_class(self):
@@ -150,7 +150,7 @@ class ModelConfigurator:
                            8807, 4757, 197301, 18807, 49328, 1420, 105106,
                            10884, 760, 4040, 0, 78482, 5539, 4,
                            13402, 18140, 13037]
-        elif self.dataset_name == 'mastr1325':
+        elif self.dataset_name == 'mastr1325' or self.dataset_name == 'mastr1325_modified':
             # Calculated by looping through annotations and counting pixels over ENTIRE dataset
                 # Re-calculate if measuring over just training dataset, etc.
             pixel_count = [21170119, 103039221, 130987221]
