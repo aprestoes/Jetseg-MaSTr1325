@@ -177,7 +177,14 @@ class SSegmDataset(Dataset):
                 else:
                     all_imgs.remove(img_name)
         else:
-            all_masks = [img_name[:-4] + img_name[-4:] for img_name in all_imgs]
+            #all_masks = [img_name[:-4] + img_name[-4:] for img_name in all_imgs]
+            all_masks = []
+            for img_name in all_imgs:
+                filename, _ = osp.splitext(img_name)
+                if osp.isfile(osp.join(self.mask_path, filename + "_L.png")): # Masks end in _L.png
+                    all_masks.append(filename + "_L.png")
+                else:
+                    all_imgs.remove(img_name)
         print(all_masks)
 
         self.tot_imgs = natsort.natsorted(all_imgs)
