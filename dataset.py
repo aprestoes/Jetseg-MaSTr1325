@@ -97,9 +97,12 @@ class Transforms:
         if dataset_name.lower() == "camvid":
             mean = [0.4132, 0.4229, 0.4301]
             std = [0.1096, 0.1011, 0.0963]
-        if (dataset_name.lower() == "mastr1325" or dataset_name.lower() == "mastr1325_modified"):
+        elif (dataset_name.lower() == "mastr1325"):
             mean = [0.58989796, 0.67510217, 0.63789755]
             std = [0.20070141, 0.20915841, 0.21057956]
+        elif dataset_name.lower() == "mastr1325_modified":
+            mean = [0.5911, 0.6760, 0.6382]
+            std = [0.0533, 0.0430, 0.0415]
         else:
             mean = [0.485, 0.456, 0.406]
             std = [0.229, 0.224, 0.225]
@@ -157,7 +160,7 @@ class Transforms:
 
 class SSegmDataset(Dataset):
     def __init__(self, dataset_name, num_classes, root_path,
-                 mode, color_map, img_size=None):
+                 mode, color_map=None, img_size=None):
 
         # Getting dataset info
         self.dataset_name = dataset_name
@@ -173,6 +176,9 @@ class SSegmDataset(Dataset):
 
         self.img_path = root_path + mode
         self.mask_path = root_path + mode + "_labels/"
+
+        #self.color_map = self.get_color_map()
+        self.color_map = color_map
 
         print(self.img_path)
         all_imgs = os.listdir(self.img_path)

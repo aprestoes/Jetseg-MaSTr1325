@@ -150,10 +150,12 @@ class ModelConfigurator:
                            8807, 4757, 197301, 18807, 49328, 1420, 105106,
                            10884, 760, 4040, 0, 78482, 5539, 4,
                            13402, 18140, 13037]
-        elif self.dataset_name == 'mastr1325' or self.dataset_name == 'mastr1325_modified':
+        elif self.dataset_name == 'mastr1325':
             # Calculated by looping through annotations and counting pixels over ENTIRE dataset
                 # Re-calculate if measuring over just training dataset, etc.
             pixel_count = [21170119, 103039221, 130987221]
+        elif self.dataset_name == 'mastr1325_modified':
+            pixel_count = [16075, 77756, 98768, 4009] # just for training set with preset random seed
         else:
             raise ValueError(f'[ERROR] Not valid dataset name: {self.dataset}')
 
