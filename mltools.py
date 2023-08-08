@@ -34,8 +34,8 @@ def build_loss_fn(loss_name, pixels_per_class=None, dataset="camvid"):
     elif loss_name.lower() == 'cross':
         loss_fn = nn.CrossEntropyLoss()
     elif loss_name.lower() == 'jet' and pixels_per_class is not None:
-        if (dataset.lower() == "mastr1325"):
-            # Sky gets treated as background 
+        if (dataset.lower() == "mastr1325" or dataset.lower() == "mastr1325_modified"):
+            # Ignore pixel gets treated as background 
             loss_fn = JetLoss(background_idx=3, n_classes=4, pixels_per_class=pixels_per_class)
         else:
             loss_fn = JetLoss(pixels_per_class=pixels_per_class)
@@ -74,6 +74,37 @@ def load_dataset(dataset_name, num_classes):
         color_maps = {
             "code2id": {(0, 0, 0): 0, (1, 1, 1): 1, (2, 2, 2): 2, (3, 3, 3): 3},
             "id2code": {0: (0, 0, 0), 1: (1, 1, 1), 2: (2, 2, 2), 3: (3, 3, 3)},
+            "name2id": {"obstacle": 0, "water": 1, "sky": 2, "ignore": 3},
+            "id2name": {0: "obstacle", 1: "water", 2: "sky", 3: "ignore"}
+        }
+
+        train = SSegmDataset(dataset_name=dataset_name.lower(),
+                            num_classes=num_classes,
+                            root_path=data_path, mode="train",
+                            color_map=color_maps)
+
+        test = SSegmDataset(dataset_name=dataset_name.lower(),
+                            root_path=data_path, mode="test",
+                            num_classes=num_classes,
+                            color_map=color_maps)
+
+        valid = SSegmDataset(dataset_name=dataset_name.lower(),
+                            root_path=data_path, mode="val",
+                            num_classes=num_classes,
+                            color_map=color_maps)
+
+        dataset = {}
+        dataset["train"] = train
+        dataset["test"] = test
+        dataset["valid"] = valid
+
+        return dataset
+
+    elif dataset_name.lower() == 'mastr1325_modified':
+        #code2id, id2code, name2id, id2name = color_map(color_dict)
+        color_maps = {
+            "code2id": {(180, 30, 35): 0, (45, 100, 170): 1, (70, 200, 200): 2, (255, 255, 255): 3},
+            "id2code": {0: (180, 30, 35), 1: (45, 100, 170), 2: (70, 200, 200), 3: (255, 255, 255)},
             "name2id": {"obstacle": 0, "water": 1, "sky": 2, "ignore": 3},
             "id2name": {0: "obstacle", 1: "water", 2: "sky", 3: "ignore"}
         }
@@ -602,7 +633,7 @@ def map_results(results, n_results=4):
     return {"best": best_res, "worst": worst_res, "random": random_res}
 
 
-def load_ckp(ckp_cfg, mode):
+def load_ckp(ckp_cfg, mode, strict=True):
 
     # getting all stuff
     model = ckp_cfg["model"]
@@ -626,7 +657,7 @@ def load_ckp(ckp_cfg, mode):
 
         # Getting state model dict
         weights_model = model_ckp["model_state_dict"]
-        model.load_state_dict(weights_model)
+        model.load_state_dict(weights_model, strict=strict)
         model.train()
 
         # Getting optimizer state
@@ -647,7 +678,7 @@ def load_ckp(ckp_cfg, mode):
 
         # Getting state model dict
         weights_model = model_ckp["model_state_dict"]
-        model.load_state_dict(weights_model)
+        model.load_state_dict(weights_model, strict=strict)
         model.eval()
 
         return model

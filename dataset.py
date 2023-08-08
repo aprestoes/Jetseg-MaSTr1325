@@ -51,12 +51,19 @@ CLASS_MAP = {
     31: (64, 192, 0), # wall
 }
 
-# Masks aren't in RGB, pixels labelled as 0, 1, 2
+# Masks aren't in RGB, pixels labelled as 0, 1, 2. Notebook converts it
 CLASS_MAP_MASTR = {
     0: (0, 0, 0),
     1: (1, 1, 1),
     2: (2, 2, 2),
     3: (3, 3, 3)
+}
+
+CLASS_MAP_MASTR_MODIFIED = {
+    0: (180, 30, 35), 
+    1: (45, 100, 170), 
+    2: (70, 200, 200),
+    3: (255, 255, 255)
 }
 
 
@@ -90,7 +97,7 @@ class Transforms:
         if dataset_name.lower() == "camvid":
             mean = [0.4132, 0.4229, 0.4301]
             std = [0.1096, 0.1011, 0.0963]
-        if dataset_name.lower() == "mastr1325":
+        if (dataset_name.lower() == "mastr1325" or dataset_name.lower() == "mastr1325_modified"):
             mean = [0.58989796, 0.67510217, 0.63789755]
             std = [0.20070141, 0.20915841, 0.21057956]
         else:
@@ -159,6 +166,8 @@ class SSegmDataset(Dataset):
 
         if dataset_name.lower() == "mastr1325":
             self.color_dict = CLASS_MAP_MASTR
+        elif dataset_name.lower() == "mastr1325_modified":
+            self.color_dict = CLASS_MAP_MASTR_MODIFIED
         else:
             self.color_dict = CLASS_MAP
 
@@ -168,7 +177,7 @@ class SSegmDataset(Dataset):
         print(self.img_path)
         all_imgs = os.listdir(self.img_path)
         print(all_imgs)
-        if dataset_name.lower() == 'mastr1325':
+        if (dataset_name.lower() == 'mastr1325' or dataset_name.lower() == 'mastr1325_modified'):
             all_masks = []
             for img_name in all_imgs:
                 filename, _ = osp.splitext(img_name)
@@ -177,7 +186,14 @@ class SSegmDataset(Dataset):
                 else:
                     all_imgs.remove(img_name)
         else:
-            all_masks = [img_name[:-4] + img_name[-4:] for img_name in all_imgs]
+            #all_masks = [img_name[:-4] + img_name[-4:] for img_name in all_imgs]
+            all_masks = []
+            for img_name in all_imgs:
+                filename, _ = osp.splitext(img_name)
+                if osp.isfile(osp.join(self.mask_path, filename + "_L.png")): # Masks end in _L.png
+                    all_masks.append(filename + "_L.png")
+                else:
+                    all_imgs.remove(img_name)
         print(all_masks)
 
         self.tot_imgs = natsort.natsorted(all_imgs)
@@ -221,7 +237,7 @@ class SSegmDataset(Dataset):
         elif self.dataset_name == "cityscapes":
             return 0
         
-        elif self.dataset_name == "mastr1325":
+        elif self.dataset_name == "mastr1325" or self.dataset_name == "mastr1325_modified":
             return 3    # The ignore pixel
 
         else:

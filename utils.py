@@ -118,7 +118,7 @@ class ModelConfigurator:
             return 32
         elif self.dataset_name == 'cityscapes':
             return 30
-        elif self.dataset_name == 'mastr1325':
+        elif self.dataset_name == 'mastr1325' or self.dataset_name == 'mastr1325_modified':
             return 4
         else:
             raise ValueError(f"[ERROR] The dataset {self.dataset_name} \
